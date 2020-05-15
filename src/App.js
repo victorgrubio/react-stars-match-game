@@ -1,8 +1,73 @@
 import React from 'react';
 import './App.css';
 
+const StarsDisplay = props => (
+  <>
+  {utils.range(1, props.count).map(startId => 
+      <div key={startId} className="star" />
+    )}
+  </>
+)
+
+const PlayNumber = props => (
+  <button 
+    className="number"
+    style={{background: colors[props.status]}}
+    onClick={() => props.onClick(props.number, props.status)}>
+    {props.number}
+  </button>
+);
+
+
 const App = () => {
   const [stars, setStars] = React.useState(utils.random(1, 9));
+  const [availableNums, setAvalailableNums] = React.useState(utils.range(1, 9))
+  const [candidateNums, setCandidateNums] = React.useState([])
+
+  // Our candidate numbers are wrong if its sum is greater
+  // than the number of stars
+  const candidatesAreWrong = utils.sum(candidateNums) > stars;
+
+  // We have to get the status for each number
+  const numberStatus = (number) => {
+    if(!availableNums.includes(number))
+      return 'used'
+    if(candidateNums.includes(number))
+      return candidatesAreWrong ? 'wrong' : 'candidate'
+    return 'available'
+  }
+
+  const onNumberClick = (number, currentStatus) => {
+    // If it has been used return
+    if (currentStatus === 'used'){
+      return ; 
+    }
+    // new candidates number: If it is available then concat
+    // else: filter if the candidate num is not in candidates to remove it
+    const newCandidateNums = 
+      currentStatus === 'available' 
+      ? candidateNums.concat(number)
+      : candidateNums.filter(candidateNumber => candidateNumber !== number)
+    
+    // checks if the sum of numbers is equal to the stars
+    if (utils.sum(newCandidateNums) !== stars){
+      // if it isn't add new candidate
+      setCandidateNums(newCandidateNums)
+    } else {
+      // if it is clear the available numbs
+      const newAvailableNums = availableNums.filter(
+        n => !newCandidateNums.includes(n)
+      )
+      // set starts to a random sum from availableNumbers
+      setStars(utils.randomSumIn(newAvailableNums, 9));
+      // update available numbers
+      setAvalailableNums(newAvailableNums);
+      // clear candidates
+      setCandidateNums([])
+
+    }
+  }
+
   return (
     <div className="game">
       <div className="help">
@@ -10,13 +75,16 @@ const App = () => {
       </div>
       <div className="body">
         <div className="left">
-          {utils.range(1, stars).map(startId => 
-            <div key={startId} className="star" />
-          )}
+          <StarsDisplay count={stars} />
         </div>
         <div className="right">
           {utils.range(1, 9).map(number => 
-            <button key={number} className="number">{number}</button>
+            <PlayNumber 
+            key={number}
+            status={numberStatus(number)}
+            number={number}
+            onClick={onNumberClick}
+           />
           )}
         </div>
       </div>
@@ -24,22 +92,6 @@ const App = () => {
     </div>
   );
 };
-
-
-/*
-Video 1
--------
-We have to create the stars as a state item as it will
-be an UI element that wil change its value
-
-We use the jsx syntax and the range function that creates an
-Array from min to max values with step of 1. Then we map this
-array into a div creation for both stars and numbers
-
-
-Video 2
--------
-*/
 
 
 // Color Theme
