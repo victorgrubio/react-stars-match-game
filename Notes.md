@@ -20,3 +20,6 @@ NOTE: The timer functionality does not work properly at it doesn't follow the co
 
 ## Use custom hooks
 As the Game component now contains a lot of functionalities, we should create a custom hook to be the manager of the game and let the Game component to handle only some small computations and the UI.
+
+## Structuring component files
+After we have completed the game, we can structure the files to give a more professional look and for the sake of scalability adn readability. Therefore, we split each component into a file and the export it.
